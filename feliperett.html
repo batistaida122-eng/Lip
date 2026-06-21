@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Aduaneira Pro · ZFM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root{
+    --bg:#0b1320; --surface:#121b2e; --surface2:#1a2540; --surface3:#202c4a;
+    --accent:#d9a441; --accent-dim:#7a5a26;
+    --teal:#2dd4bf; --red:#ef4444; --yellow:#eab308;
+    --text:#e8edf5; --dim:#8a96ab; --border:#243150;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Inter',sans-serif; padding-bottom:78px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0 0 4px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  header{
+    background:linear-gradient(135deg,var(--surface2),var(--surface));
+    padding:18px 20px 16px; border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:10;
+  }
+  header .eyebrow{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  header h1{font-size:20px;}
+  header .sub{font-size:12px; color:var(--dim); margin-top:2px;}
+
+  .container{padding:16px; max-width:600px; margin:auto;}
+  .hidden{display:none !important;}
+
+  label{display:block; font-size:12px; color:var(--dim); margin:10px 0 4px; font-weight:500;}
+  input, select{
+    width:100%; padding:12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface); color:var(--text); font-size:15px; font-family:inherit;
+  }
+  input:focus, select:focus{outline:2px solid var(--accent); border-color:var(--accent);}
+  input[type=file]{padding:9px; font-size:13px; color:var(--dim);}
+
+  button{
+    background:var(--accent); color:#1a1206; border:none; padding:13px 16px;
+    border-radius:8px; font-size:15px; font-weight:600; width:100%; margin-top:12px;
+    cursor:pointer; font-family:inherit;
+  }
+  button:active{transform:scale(.98);}
+  button.secondary{background:var(--surface2); color:var(--text); border:1px solid var(--border);}
+  button.ghost{background:transparent; color:var(--dim); border:1px solid var(--border);}
+  button.danger{background:transparent; color:var(--red); border:1px solid var(--red);}
+  button.sm{width:auto; padding:8px 12px; font-size:13px; margin-top:0;}
+
+  .row{display:flex; gap:8px;}
+  .row > *{flex:1;}
+
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:14px 16px; margin:10px 0;
+  }
+  .card .top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .card .num{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:600;}
+  .card .meta{font-size:12px; color:var(--dim); margin-top:4px;}
+  .empty{color:var(--dim); font-size:13px; text-align:center; padding:30px 10px;}
+
+  .badge{font-size:11px; padding:4px 9px; border-radius:20px; font-weight:600; white-space:nowrap;}
+  .badge.verde{background:rgba(45,212,191,.15); color:var(--teal);}
+  .badge.amarelo{background:rgba(234,179,8,.15); color:var(--yellow);}
+  .badge.vermelho{background:rgba(239,68,68,.15); color:var(--red);}
+  .badge.neutro{background:var(--surface3); color:var(--dim);}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:14px 0;}
+  .stat{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 8px; text-align:center;}
+  .stat .n{font-family:'Space Grotesk'; font-size:22px; font-weight:700; color:var(--accent);}
+  .stat .l{font-size:10px; color:var(--dim); text-transform:uppercase; letter-spacing:.05em; margin-top:2px;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;}
+  .tile{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:16px 12px; text-align:center; cursor:pointer;
+  }
+  .tile .ic{font-size:24px;}
+  .tile .lb{font-size:13px; font-weight:600; margin-top:6px;}
+
+  .nav{
+    position:fixed; bottom:0; left:0; width:100%; background:var(--surface);
+    border-top:1px solid var(--border); display:flex; z-index:20;
+  }
+  .nav button{
+    background:transparent; color:var(--dim); flex:1; margin:0; padding:10px 0 8px;
+    border-radius:0; font-size:10px; display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .nav button.active{color:var(--accent);}
+  .nav button .ic{font-size:18px;}
+
+  .file-pill{
+    display:inline-flex; align-items:center; gap:6px; background:var(--surface3);
+    border-radius:20px; padding:5px 10px 5px 6px; font-size:12px; margin-top:8px;
+  }
+
+  .stamp{
+    width:120px; height:120px; border-radius:50%; border:4px solid currentColor;
+    display:flex; align-items:center; justify-content:center; margin:20px auto 8px;
+    transform:rotate(-8deg); font-family:'Space Grotesk'; font-weight:700; font-size:15px;
+    text-transform:uppercase; letter-spacing:.05em; text-align:center; line-height:1.2;
+    box-shadow:0 0 0 2px currentColor inset; animation:stampIn .35s ease-out;
+  }
+  @keyframes stampIn{from{transform:rotate(-8deg) scale(1.6); opacity:0;} to{transform:rotate(-8deg) scale(1); opacity:1;}}
+  .stamp.verde{color:var(--teal);} .stamp.amarelo{color:var(--yellow);} .stamp.vermelho{color:var(--red);}
+
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--surface3); border:1px solid var(--accent); color:var(--text);
+    padding:10px 18px; border-radius:30px; font-size:13px; z-index:50;
+    opacity:0; transition:opacity .25s;
+  }
+  .toast.show{opacity:1;}
+
+  .section-title{display:flex; justify-content:space-between; align-items:center; margin:16px 0 4px;}
+  .section-title h2{font-size:17px;}
+  .back{font-size:13px; color:var(--dim); display:inline-flex; align-items:center; gap:4px; cursor:pointer; margin-bottom:6px;}
+
+  @media print{
+    .nav, header, button, .no-print{display:none !important;}
+    body{background:#fff; color:#000; padding-bottom:0;}
+    .card{border:1px solid #999; background:#fff; color:#000;}
+    .badge{border:1px solid #999;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Zona Franca de Manaus</div>
+  <h1>📦 Aduaneira Pro</h1>
+  <div class="sub">Importação · Exportação · SISCOMEX</div>
+</header>
+
+<div class="container" id="main">
+
+  <!-- LOGIN -->
+  <div id="screen-login">
+    <h2 style="margin-top:30px;">Entrar</h2>
+    <label>CNPJ da empresa</label>
+    <input id="loginCnpj" inputmode="numeric" placeholder="00.000.000/0000-00">
+    <label>E-mail</label>
+    <input id="loginEmail" type="email" placeholder="voce@empresa.com.br">
+    <label>Senha</label>
+    <input id="loginSenha" type="password" placeholder="••••••••">
+    <button onclick="App.login()">Entrar</button>
+    <button class="ghost" onclick="App.go('cadastro')">Cadastrar nova empresa</button>
+  </div>
+
+  <!-- CADASTRO EMPRESA -->
+  <div id="screen-cadastro" class="hidden">
+    <span class="back" onclick="App.go('login')">← Voltar</span>
+    <h2>Cadastrar empresa</h2>
+    <label>Razão social</label>
+    <input id="cadNome" placeholder="Nome da empresa">
+    <label>CNPJ</label>
+    <input id="cadCnpj" placeholder="00.000.000/0000-00">
+    <label>E-mail</label>
+    <input id="cadEmail" type="email" placeholder="voce@empresa.com.br">
+    <label>Senha</label>
+    <input id="cadSenha" type="password" placeholder="Crie uma senha">
+    <label>Distrito Industrial / Polo</label>
+    <input id="cadPolo" placeholder="Ex: Distrito Industrial de Manaus">
+    <button onclick="App.cadastrarEmpresa()">Criar conta</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="screen-dashboard" class="hidden">
+    <h2 style="margin-top:10px;">Olá, <span id="nomeEmpresa" class="mono"></span></h2>
+    <div class="stats">
+      <div class="stat"><div class="n" id="statDI">0</div><div class="l">DIs</div></div>
+      <div class="stat"><div class="n" id="statPLI">0</div><div class="l">PLI/PLA</div></div>
+      <div class="stat"><div class="n" id="statCarga">0</div><div class="l">Cargas</div></div>
+    </div>
+    <div class="grid2">
+      <div class="tile" onclick="App.go('diForm')"><div class="ic">📥</div><div class="lb">Nova DI</div></div>
+      <div class="tile" onclick="App.go('pliForm')"><div class="ic">📜</div><div class="lb">Nova PLI/PLA</div></div>
+      <div class="tile" onclick="App.go('scanner')"><div class="ic">🔎</div><div class="lb">Scanner Canal</div></div>
+      <div class="tile" onclick="App.go('cargaForm')"><div class="ic">🚛</div><div class="lb">Monitorar Carga</div></div>
+    </div>
+    <button class="secondary" onclick="App.go('export')">⤓ Exportar dados</button>
+  </div>
+
+  <!-- DI: LISTA -->
+  <div id="screen-diList" class="hidden">
+    <span class="back" onclick="App.go('dashboard')">← Voltar</span>
+    <div class="section-title"><h2>Declarações de Importação</h2></div>
+    <button onclick="App.go('diForm')">+ Nova DI</button>
+    <div id="listaDI"></div>
+  </div>
+
+  <!-- DI: FORM -->
+  <div id="screen-diForm" class="hidden">
+    <span class="back" onclick="App.go('diList')">← Voltar</span>
+    <h2>Nova Declaração de Importação</h2>
+    <label>Número da DI</label>
+    <input id="diNumero" class="mono" placeholder="00/0000000-0">
+    <label>NCM</label>
+    <input id="diNcm" class="mono" placeholder="0000.00.00">
+    <label>Fornecedor</label>
+    <input id="diFornecedor" placeholder="Nome do fornecedor">
+    <label>Valor FOB (USD)</label>
+    <input id="diValor" type="number" placeholder="0,00">
+    <label>Anexar documento (fatura, packing list, BL...)</label>
+    <input id="diArquivo" type="file">
+    <button onclick="App.salvarDI()">Salvar DI</button>
+  </div>
+
+  <!-- PLI/PLA: LISTA -->
+  <div id="screen-pliList" class="hidden">
+    <span class="back" onclick="App.go('dashboard')">← Voltar</span>
+    <div class="section-title"><h2>Licenças PLI / PLA</h2></div>
+    <button onclick="App.go('pliForm')">+ Nova Licença</button>
+    <div id="listaPLI"></div>
+  </div>
+
+  <!-- PLI: FORM -->
+  <div id="screen-pliForm" class="hidden">
+    <span class="back" onclick="App.go('pliList')">← Voltar</span>
+    <h2>Nova Licença PLI/PLA</h2>
+    <label>Tipo</label>
+    <select id="pliTipo">
+      <option>PLI - Prévia</option>
+      <option>PLA - Após embarque</option>
+    </select>
+    <label>Nº do processo</label>
+    <input id="pliNumero" class="mono" placeholder="Número do processo">
+    <label>Órgão anuente</label>
+    <input id="pliOrgao" placeholder="Ex: ANVISA, MAPA, IBAMA...">
+    <label>Anexar documento</label>
+    <input id="pliArquivo" type="file">
+    <button onclick="App.salvarPLI()">Salvar Licença</button>
+  </div>
+
+  <!-- SCANNER -->
+  <div id="screen-scanner" class="hidden">
+    <span class="back" onclick="App.go('dashboard')">← Voltar</span>
+    <h2>Scanner de Canal</h2>
+    <label>Número da DI ou container</label>
+    <input id="scanInput" class="mono" placeholder="Digite o número">
+    <button onclick="App.processarScan()">Analisar canal</button>
+    <div id="scanResultado" class="hidden" style="text-align:center;"></div>
+    <div id="scanHistorico"></div>
+  </div>
+
+  <!-- CARGA: LISTA -->
+  <div id="screen-cargaList" class="hidden">
+    <span class="back" onclick="App.go('dashboard')">← Voltar</span>
+    <div class="section-title"><h2>Monitoramento de Carga</h2></div>
+    <button onclick="App.go('cargaForm')">+ Nova Carga</button>
+    <div id="listaCarga"></div>
+  </div>
+
+  <!-- CARGA: FORM -->
+  <div id="screen-cargaForm" class="hidden">
+    <span class="back" onclick="App.go('cargaList')">← Voltar</span>
+    <h2>Monitorar Carga</h2>
+    <label>Container / Identificação</label>
+    <input id="cargaId" class="mono" placeholder="Ex: MSCU1234567">
+    <label>Status atual</label>
+    <select id="cargaStatus">
+      <option>Em trânsito marítimo</option>
+      <option>Atracado no porto</option>
+      <option>Em desembaraço</option>
+      <option>Liberado</option>
+      <option>Retido / Diligência</option>
+    </select>
+    <label>Local atual</label>
+    <input id="cargaLocal" placeholder="Ex: Porto de Manaus">
+    <button onclick="App.salvarCarga()">Salvar carga</button>
+  </div>
+
+  <!-- EXPORT -->
+  <div id="screen-export" class="hidden">
+    <span class="back" onclick="App.go('dashboard')">← Voltar</span>
+    <h2>Exportar dados</h2>
+    <p style="color:var(--dim); font-size:13px;">Exporte os registros da sua empresa nos formatos abaixo.</p>
+    <div class="card">
+      <strong>JSON completo</strong>
+      <div class="meta">Inclui DIs, PLIs, cargas e arquivos anexados (base64).</div>
+      <button class="secondary sm" style="margin-top:10px;" onclick="App.exportJSON()">⤓ Baixar .json</button>
+    </div>
+    <div class="card">
+      <strong>Planilha CSV — DIs</strong>
+      <div class="meta">Lista de Declarações de Importação, compatível com Excel/Sheets.</div>
+      <button class="secondary sm" style="margin-top:10px;" onclick="App.exportCSV()">⤓ Baixar .csv</button>
+    </div>
+    <div class="card">
+      <strong>Relatório para impressão / PDF</strong>
+      <div class="meta">Abre a visualização de impressão — escolha "Salvar como PDF" na janela do navegador.</div>
+      <button class="secondary sm" style="margin-top:10px;" onclick="App.exportPDF()">🖨 Gerar relatório</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav" id="bottomNav"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const App = (() => {
+  const DB_KEY = 'aduaneiraProDB_v1';
+  let db = null;
+  let currentEmpresaId = null;
+
+  function loadDB(){
+    try{ db = JSON.parse(localStorage.getItem(DB_KEY)) || { empresas:[], session:null }; }
+    catch(e){ db = { empresas:[], session:null }; }
+    if(!db.empresas) db.empresas = [];
+  }
+  function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+  function empresa(){ return db.empresas.find(e => e.id === currentEmpresaId); }
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  function fileToBase64(file){
+    return new Promise((resolve,reject)=>{
+      if(!file){ resolve(null); return; }
+      const r = new FileReader();
+      r.onload = () => resolve({ name:file.name, type:file.type, data:r.result });
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  function downloadBlob(content, filename, mime){
+    const blob = new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  const NAV = [
+    {screen:'dashboard', ic:'🏠', lb:'Início'},
+    {screen:'diList', ic:'📥', lb:'DI'},
+    {screen:'scanner', ic:'🔎', lb:'Canal'},
+    {screen:'cargaList', ic:'🚛', lb:'Carga'},
+    {screen:'export', ic:'⤓', lb:'Exportar'},
+  ];
+
+  function renderNav(active){
+    const nav = document.getElementById('bottomNav');
+    nav.innerHTML = NAV.map(n =>
+      `<button class="${n.screen===active?'active':''}" onclick="App.go('${n.screen}')">
+        <span class="ic">${n.ic}</span>${n.lb}
+      </button>`).join('');
+  }
+
+  function go(screen){
+    document.querySelectorAll('#main > div').forEach(d => d.classList.add('hidden'));
+    document.getElementById('screen-' + screen).classList.remove('hidden');
+    const navScreens = NAV.map(n=>n.screen);
+    document.getElementById('bottomNav').classList.toggle('hidden', !navScreens.includes(screen) && screen!=='login' && screen!=='cadastro');
+    if(['login','cadastro'].includes(screen)){
+      document.getElementById('bottomNav').classList.add('hidden');
+    } else {
+      renderNav(navScreens.includes(screen) ? screen : null);
+    }
+    if(screen==='dashboard') renderDashboard();
+    if(screen==='diList') renderDIList();
+    if(screen==='pliList') renderPLIList();
+    if(screen==='cargaList') renderCargaList();
+    if(screen==='scanner') renderScanHistorico();
+    window.scrollTo(0,0);
+  }
+
+  function login(){
+    const cnpj = document.getElementById('loginCnpj').value.trim();
+    const email = document.getElementById('loginEmail').value.trim();
+    const senha = document.getElementById('loginSenha').value;
+    if(!cnpj || !email || !senha){ toast('Preencha todos os campos'); return; }
+    const found = db.empresas.find(e => e.cnpj === cnpj && e.email === email && e.senha === senha);
+    if(!found){ toast('Empresa não encontrada — cadastre-se'); return; }
+    currentEmpresaId = found.id;
+    go('dashboard');
+  }
+
+  function cadastrarEmpresa(){
+    const nome = document.getElementById('cadNome').value.trim();
+    const cnpj = document.getElementById('cadCnpj').value.trim();
+    const email = document.getElementById('cadEmail').value.trim();
+    const senha = document.getElementById('cadSenha').value;
+    const polo = document.getElementById('cadPolo').value.trim();
+    if(!nome || !cnpj || !email || !senha){ toast('Preencha os campos obrigatórios'); return; }
+    const nova = { id:uid(), nome, cnpj, email, senha, polo, dis:[], plis:[], cargas:[], scans:[] };
+    db.empresas.push(nova);
+    saveDB();
+    currentEmpresaId = nova.id;
+    toast('Empresa cadastrada com sucesso');
+    go('dashboard');
+  }
+
+  function logout(){ currentEmpresaId = null; go('login'); }
+
+  function renderDashboard(){
+    const e = empresa(); if(!e) return;
+    document.getElementById('nomeEmpresa').textContent = e.nome;
+    document.getElementById('statDI').textContent = e.dis.length;
+    document.getElementById('statPLI').textContent = e.plis.length;
+    document.getElementById('statCarga').textContent = e.cargas.length;
+  }
+
+  async function salvarDI(){
+    const e = empresa();
+    const numero = document.getElementById('diNumero').value.trim();
+    const ncm = document.getElementById('diNcm').value.trim();
+    const fornecedor = document.getElementById('diFornecedor').value.trim();
+    const valor = document.getElementById('diValor').value;
+    const file = document.getElementById('diArquivo').files[0];
+    if(!numero){ toast('Informe o número da DI'); return; }
+    const anexo = await fileToBase64(file);
+    e.dis.unshift({ id:uid(), numero, ncm, fornecedor, valor, anexo, criado:new Date().toISOString(), canal:null });
+    saveDB();
+    ['diNumero','diNcm','diFornecedor','diValor'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('diArquivo').value='';
+    toast('DI salva');
+    go('diList');
+  }
+
+  function renderDIList(){
+    const e = empresa(); const list = document.getElementById('listaDI');
+    if(!e.dis.length){ list.innerHTML = '<div class="empty">Nenhuma DI cadastrada ainda.</div>'; return; }
+    list.innerHTML = e.dis.map(di => `
+      <div class="card">
+        <div class="top">
+          <div>
+            <div class="num">${di.numero}</div>
+            <div class="meta">NCM ${di.ncm || '—'} · ${di.fornecedor || 'Fornecedor não informado'}</div>
+            <div class="meta">FOB US$ ${di.valor ? Number(di.valor).toLocaleString('pt-BR') : '0,00'}</div>
+          </div>
+          ${di.canal ? `<span class="badge ${di.canal}">${di.canal}</span>` : ''}
+        </div>
+        ${di.anexo ? `<div class="file-pill">📎 ${di.anexo.name} <a href="${di.anexo.data}" download="${di.anexo.name}" style="color:var(--accent);">⤓</a></div>` : ''}
+        <div class="row" style="margin-top:10px;">
+          <button class="ghost sm" onclick="App.removerDI('${di.id}')">Remover</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function removerDI(id){
+    const e = empresa();
+    e.dis = e.dis.filter(d => d.id !== id);
+    saveDB(); renderDIList(); toast('DI removida');
+  }
+
+  async function salvarPLI(){
+    const e = empresa();
+    const tipo = document.getElementById('pliTipo').value;
+    const numero = document.getElementById('pliNumero').value.trim();
+    const orgao = document.getElementById('pliOrgao').value.trim();
+    const file = document.getElementById('pliArquivo').files[0];
+    if(!numero){ toast('Informe o número do processo'); return; }
+    const anexo = await fileToBase64(file);
+    e.plis.unshift({ id:uid(), tipo, numero, orgao, anexo, criado:new Date().toISOString() });
+    saveDB();
+    ['pliNumero','pliOrgao'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pliArquivo').value='';
+    toast('Licença salva');
+    go('pliList');
+  }
+
+  function renderPLIList(){
+    const e = empresa(); const list = document.getElementById('listaPLI');
+    if(!e.plis.length){ list.innerHTML = '<div class="empty">Nenhuma licença cadastrada ainda.</div>'; return; }
+    list.innerHTML = e.plis.map(p => `
+      <div class="card">
+        <div class="top">
+          <div>
+            <div class="num">${p.numero}</div>
+            <div class="meta">${p.tipo} · ${p.orgao || 'Órgão não informado'}</div>
+          </div>
+        </div>
+        ${p.anexo ? `<div class="file-pill">📎 ${p.anexo.name} <a href="${p.anexo.data}" download="${p.anexo.name}" style="color:var(--accent);">⤓</a></div>` : ''}
+        <div class="row" style="margin-top:10px;">
+          <button class="ghost sm" onclick="App.removerPLI('${p.id}')">Remover</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function removerPLI(id){
+    const e = empresa();
+    e.plis = e.plis.filter(p => p.id !== id);
+    saveDB(); renderPLIList(); toast('Licença removida');
+  }
+
+  function salvarCarga(){
+    const e = empresa();
+    const idCarga = document.getElementById('cargaId').value.trim();
+    const status = document.getElementById('cargaStatus').value;
+    const local = document.getElementById('cargaLocal').value.trim();
+    if(!idCarga){ toast('Informe o container/identificação'); return; }
+    e.cargas.unshift({ id:uid(), idCarga, status, local, atualizado:new Date().toISOString() });
+    saveDB();
+    document.getElementById('cargaId').value=''; document.getElementById('cargaLocal').value='';
+    toast('Carga registrada');
+    go('cargaList');
+  }
+
+  function renderCargaList(){
+    const e = empresa(); const list = document.getElementById('listaCarga');
+    if(!e.cargas.length){ list.innerHTML = '<div class="empty">Nenhuma carga monitorada ainda.</div>'; return; }
+    list.innerHTML = e.cargas.map(c => `
+      <div class="card">
+        <div class="top">
+          <div>
+            <div class="num">${c.idCarga}</div>
+            <div class="meta">${c.status} · ${c.local || 'Local não informado'}</div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="ghost sm" onclick="App.removerCarga('${c.id}')">Remover</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function removerCarga(id){
+    const e = empresa();
+    e.cargas = e.cargas.filter(c => c.id !== id);
+    saveDB(); renderCargaList(); toast('Carga removida');
+  }
+
+  function processarScan(){
+    const e = empresa();
+    const input = document.getElementById('scanInput').value.trim() || 'DI-' + Math.floor(Math.random()*99999);
+    const canais = ['verde','amarelo','vermelho'];
+    const canal = canais[Math.floor(Math.random()*3)];
+    e.scans.unshift({ id:uid(), input, canal, data:new Date().toISOString() });
+    const diMatch = e.dis.find(d => d.numero === input);
+    if(diMatch) diMatch.canal = canal;
+    saveDB();
+    const res = document.getElementById('scanResultado');
+    res.classList.remove('hidden');
+    res.innerHTML = `
+      <div class="stamp ${canal}">${input}<br>Canal ${canal}</div>
+      <div class="meta">${new Date().toLocaleString('pt-BR')}</div>
+    `;
+    renderScanHistorico();
+  }
+
+  function renderScanHistorico(){
+    const e = empresa(); if(!e) return;
+    const hist = document.getElementById('scanHistorico');
+    if(!e.scans.length){ hist.innerHTML = ''; return; }
+    hist.innerHTML = '<label style="margin-top:18px;">Histórico</label>' + e.scans.slice(0,15).map(s => `
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="num">${s.input}</div>
+          <div class="meta">${new Date(s.data).toLocaleString('pt-BR')}</div>
+        </div>
+        <span class="badge ${s.canal}">${s.canal}</span>
+      </div>
+    `).join('');
+  }
+
+  function exportJSON(){
+    const e = empresa();
+    downloadBlob(JSON.stringify(e, null, 2), `aduaneira-pro_${e.cnpj || 'empresa'}.json`, 'application/json');
+    toast('JSON exportado');
+  }
+
+  function exportCSV(){
+    const e = empresa();
+    let csv = 'Numero DI;NCM;Fornecedor;Valor FOB (USD);Canal;Criado em\n';
+    e.dis.forEach(d => {
+      csv += `${d.numero};${d.ncm||''};${d.fornecedor||''};${d.valor||0};${d.canal||''};${new Date(d.criado).toLocaleDateString('pt-BR')}\n`;
+    });
+    downloadBlob(csv, `dis_${e.cnpj || 'empresa'}.csv`, 'text/csv;charset=utf-8;');
+    toast('CSV exportado');
+  }
+
+  function exportPDF(){
+    const e = empresa();
+    const win = window.open('', '_blank');
+    const linhasDI = e.dis.map(d => `<tr><td>${d.numero}</td><td>${d.ncm||'—'}</td><td>${d.fornecedor||'—'}</td><td>US$ ${d.valor||0}</td><td>${d.canal||'—'}</td></tr>`).join('');
+    const linhasPLI = e.plis.map(p => `<tr><td>${p.numero}</td><td>${p.tipo}</td><td>${p.orgao||'—'}</td></tr>`).join('');
+    win.document.write(`
+      <html><head><title>Relatório - ${e.nome}</title>
+      <style>
+        body{font-family:Arial,sans-serif; padding:30px; color:#111;}
+        h1{font-size:20px;} h2{font-size:15px; margin-top:30px; border-bottom:2px solid #333; padding-bottom:4px;}
+        table{width:100%; border-collapse:collapse; margin-top:10px; font-size:13px;}
+        td,th{border:1px solid #999; padding:6px 8px; text-align:left;}
+        th{background:#eee;}
+      </style></head><body>
+      <h1>Relatório Aduaneiro — ${e.nome}</h1>
+      <p>CNPJ: ${e.cnpj} · Gerado em ${new Date().toLocaleString('pt-BR')}</p>
+      <h2>Declarações de Importação (${e.dis.length})</h2>
+      <table><tr><th>Número</th><th>NCM</th><th>Fornecedor</th><th>Valor FOB</th><th>Canal</th></tr>${linhasDI || '<tr><td colspan="5">Nenhuma DI</td></tr>'}</table>
+      <h2>Licenças PLI/PLA (${e.plis.length})</h2>
+      <table><tr><th>Número</th><th>Tipo</th><th>Órgão</th></tr>${linhasPLI || '<tr><td colspan="3">Nenhuma licença</td></tr>'}</table>
+      </body></html>
+    `);
+    win.document.close();
+    setTimeout(()=>win.print(), 400);
+  }
+
+  function init(){
+    loadDB();
+    go('login');
+  }
+
+  return { go, login, cadastrarEmpresa, logout, salvarDI, removerDI, salvarPLI, removerPLI,
+           salvarCarga, removerCarga, processarScan, exportJSON, exportCSV, exportPDF, init };
+})();
+
+window.addEventListener('DOMContentLoaded', App.init);
+</script>
+</body>
+</html>
